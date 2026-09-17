@@ -14,24 +14,37 @@ button{font:inherit;padding:.5rem 1rem;border-radius:.4rem;cursor:pointer}
 <h1 id=title>Authorization complete</h1>
 <p class=sub id=sub>Copy the full address bar URL back into the terminal.</p>
 
-<p>Paste this entire URL at the <code>Paste the redirect URL:</code> prompt:</p>
-<pre id=url></pre>
-<button onclick="navigator.clipboard.writeText(document.getElementById('url').textContent)
-                 .then(()=>this.textContent='Copied')">Copy URL</button>
+<div id=payload>
+  <p>Paste this entire URL at the <code>Paste the redirect URL:</code> prompt:</p>
+  <pre id=url></pre>
+  <button onclick="navigator.clipboard.writeText(document.getElementById('url').textContent)
+                   .then(()=>this.textContent='Copied')">Copy URL</button>
+  <p class=warn>This authorization code expires in a few minutes and can only be
+  used once. If it lapses, run the command again to get a fresh link.</p>
+</div>
 
-<p class=warn>This authorization code expires in a few minutes and can only be
-used once. If it lapses, run the command again to get a fresh link.</p>
+<div id=failed hidden>
+  <p class=warn>Nothing was authorized, so there is nothing to copy. Common
+  cause: the signed-in Intuit user is not a primary or company admin on the
+  QuickBooks company. Only an admin can connect an app.</p>
+  <p><a href=index.html>Back to the app</a></p>
+</div>
 
 <script>
 const q = new URLSearchParams(location.search);
-document.getElementById('url').textContent = location.href;
+const fail = (title, sub) => {
+  document.title = title + ' — QuickBooks Assistant';
+  document.getElementById('title').textContent = title;
+  document.getElementById('sub').textContent = sub;
+  document.getElementById('payload').hidden = true;
+  document.getElementById('failed').hidden = false;
+};
 if (q.get('error')) {
-  document.getElementById('title').textContent = 'Authorization failed';
-  document.getElementById('sub').textContent =
-    q.get('error_description') || q.get('error');
+  fail('Authorization failed', q.get('error_description') || q.get('error'));
 } else if (!q.get('code')) {
-  document.getElementById('title').textContent = 'Nothing to see here';
-  document.getElementById('sub').textContent =
-    'This page only does something at the end of an authorization flow.';
+  fail('Nothing to see here',
+       'This page only does something at the end of an authorization flow.');
+} else {
+  document.getElementById('url').textContent = location.href;
 }
 </script>
