@@ -1,0 +1,37 @@
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Authorization complete — QuickBooks Assistant</title>
+<style>
+:root{color-scheme:light dark}
+body{font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+     max-width:44rem;margin:4rem auto;padding:0 1.5rem}
+h1{font-size:1.5rem}.sub{opacity:.65;margin-top:0}
+pre{background:rgba(127,127,127,.15);padding:1rem;border-radius:.5rem;
+    overflow-x:auto;font-size:.85rem;user-select:all}
+.warn{border-left:3px solid #c88;padding-left:1rem;opacity:.85;font-size:.92rem}
+button{font:inherit;padding:.5rem 1rem;border-radius:.4rem;cursor:pointer}
+</style>
+
+<h1 id=title>Authorization complete</h1>
+<p class=sub id=sub>Copy the full address bar URL back into the terminal.</p>
+
+<p>Paste this entire URL at the <code>Paste the redirect URL:</code> prompt:</p>
+<pre id=url></pre>
+<button onclick="navigator.clipboard.writeText(document.getElementById('url').textContent)
+                 .then(()=>this.textContent='Copied')">Copy URL</button>
+
+<p class=warn>This authorization code expires in a few minutes and can only be
+used once. If it lapses, run the command again to get a fresh link.</p>
+
+<script>
+const q = new URLSearchParams(location.search);
+document.getElementById('url').textContent = location.href;
+if (q.get('error')) {
+  document.getElementById('title').textContent = 'Authorization failed';
+  document.getElementById('sub').textContent =
+    q.get('error_description') || q.get('error');
+} else if (!q.get('code')) {
+  document.getElementById('title').textContent = 'Nothing to see here';
+  document.getElementById('sub').textContent =
+    'This page only does something at the end of an authorization flow.';
+}
+</script>
